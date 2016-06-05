@@ -1,0 +1,21 @@
+********************************************************************************
+*                       Saturday, 04 June 2016 17:51:01                        *
+********************************************************************************
+CSharpCompilerWrapper.exe version: 1.7.0.0
+Platform: Mac
+Target assembly: /Assembly-CSharp.dll
+Project directory: /Users/Loli/Downloads/WixCalculator
+Unity 'Data' or 'Frameworks' directory: /Applications/Unity/Unity.app/Contents/Frameworks
+Microsoft C# 6.0 compiler found, but it is not supported on the current platform. Looking for another compiler...
+Compiler: Mono C# 6.0
+
+- Compilation -----------------------------------------------
+
+Process: /Applications/Unity/Unity.app/Contents/Frameworks/MonoBleedingEdge/bin/mono
+Arguments: "/Users/Loli/Downloads/WixCalculator/CSharp60Support/mcs.exe" -sdk:2 -debug+ -langversion:Default @Temp/UnityTempFile-1dac97e5c1c3442488fbee2b5c3b98bb
+Exit code: 0
+Elapsed time: 1.35 sec
+
+- Compiler output (0 lines):
+
+- Compiler errors (0 lines):
