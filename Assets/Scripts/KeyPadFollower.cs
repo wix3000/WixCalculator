@@ -9,8 +9,8 @@ public class KeyPadFollower : MonoBehaviour {
 	Button button;
 	[SerializeField]
 	KeyCode inputKey;
-	[SerializeField]
-	KeyCode comboKey = KeyCode.None;
+    [SerializeField]
+    bool withCtrl;
 
 	// Use this for initialization
 	void Start () {
@@ -22,10 +22,9 @@ public class KeyPadFollower : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown (inputKey)) {
-			if (comboKey == KeyCode.None || Input.GetKey (comboKey)) {
-				//ExecuteEvents.Execute<IPointerClickHandler> (gameObject, new BaseEventData (EventSystem.current), ExecuteEvents.pointerClickHandler);
-				ExecuteEvents.Execute<ISubmitHandler> (gameObject, new BaseEventData (EventSystem.current), ExecuteEvents.submitHandler);
-			}
+            if (withCtrl && !(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))) return;
+
+            ExecuteEvents.Execute(gameObject, new BaseEventData (EventSystem.current), ExecuteEvents.submitHandler);
 		}
 	}
 

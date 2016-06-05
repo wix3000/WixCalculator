@@ -50,20 +50,41 @@ namespace Wix.Calculator{
 		/// </summary>
 		/// <param name="elements">Elements.</param>
 		public void PreFix(List<Element> elements){
-			for (int i = 0; i < elements.Count; i++) {
-				Element e = elements [i];
-
-				if (e is Cparen && i != elements.Count - 1) {
-					e = elements [i + 1];
-					if (e is Oparen || e is ValueElement)
-						elements.Insert (i + 1, new Multiply ());
-				} else if (e is Oparen && i != 0) {
-					e = elements [i - 1];
-					if (e is Cparen || e is ValueElement)
-						elements.Insert (i, new Multiply ());
-				}
-			}
+            AddMultiply(elements);
+            AddNullElement(elements);
 		}
+
+        void AddMultiply(List<Element> elements) {
+            for (int i = 0; i < elements.Count; i++) {
+                Element e = elements[i];
+
+                if (e is Cparen && i != elements.Count - 1) {
+                    e = elements[i + 1];
+                    if (e is Oparen || e is ValueElement)
+                        elements.Insert(i + 1, new Multiply());
+                }
+                else if (e is Oparen && i != 0) {
+                    e = elements[i - 1];
+                    if (e is Cparen || e is ValueElement)
+                        elements.Insert(i, new Multiply());
+                }
+            }
+        }
+
+        void AddNullElement(List<Element> elements) {
+            for(int i = 0; i < elements.Count; i++) {
+                INonBinaryOperators e = elements[i] as INonBinaryOperators;
+                if (e == null) continue;
+
+                if (e.isLeftSideNull) {
+                    elements.Insert(i, new ValueElement());
+                    i++;
+                }
+                if (e.isRightSideNull) {
+                    elements.Insert(i + 1, new ValueElement());
+                }
+            }
+        }
 
 		/// <summary>
 		/// 將中序表達式轉換為後序表達式
@@ -130,12 +151,13 @@ namespace Wix.Calculator{
 				if (e is ValueElement) {
 					stack.Push (e);
 				} else if (e is OperatorElement) {
-					int argCount = ((OperatorElement)e).argCount;
-					ValueElement[] args = new ValueElement[argCount];
-					for (int j = argCount - 1; j >= 0; j--) {
-						args [j] = (ValueElement)stack.Pop ();
-					}
-					ValueElement tempResult = ((OperatorElement)e).Calculate (args);
+                    //int argCount = ((OperatorElement)e).argCount;
+                    //ValueElement[] args = new ValueElement[argCount];
+                    //for (int j = argCount - 1; j >= 0; j--) {
+                    //	args [j] = (ValueElement)stack.Pop ();
+                    //}
+                    //ValueElement tempResult = ((OperatorElement)e).Calculate (args);
+                    ValueElement tempResult = ((OperatorElement)e).Calculate(stack.Pop(), stack.Pop());
 					stack.Push (tempResult);
 				}
 			}

@@ -63,8 +63,7 @@ public class CalculatorInterface : MonoBehaviour {
 	}
 
 	void RefreshInputLine(Element element) {
-		print ((element.ToString ().Length > 10));
-		inputLine.text = (element.ToString ().Length > 10) ? ((ValueElement)element).ToString ("E5") : element.ToString ();
+		inputLine.text = (element.ToString ().Length > 10) ? ((ValueElement)element).ToString ("E") : element.ToString ();
 	}
 
 	void RefreshInputLine(List<Element> datas = null) {
@@ -88,7 +87,8 @@ public class CalculatorInterface : MonoBehaviour {
 		RefreshInputLine (result);
 	}
 
-	public void OnNumbicClick(int numbic){
+    #region 基本按鍵區
+    public void OnNumbicClick(int numbic){
 		PushValue (new ValueElement (numbic));
 	}
 
@@ -166,6 +166,8 @@ public class CalculatorInterface : MonoBehaviour {
 		RefreshInputLine ();
 	}
 
+    #endregion
+
     public enum CalculatorMode {
         Classis,
         Advance
@@ -192,12 +194,17 @@ public class CalculatorInterface : MonoBehaviour {
 	}
 
 	public void OnRandClick(){
-		PushAlgebra (new Wix.Calculator.Random ());
+        print(UnityEngine.Random.value.ToString());
+        PushAlgebra(new ValueElement(UnityEngine.Random.value.ToString()));
 	}
 
 	public void OnEClick(){
-		PushAlgebra (new MathematicalConstant ());
+        PushAlgebra(new Algebra(AlgebraType.E));
 	}
+
+    public void OnPiClick() {
+        PushAlgebra(new Algebra(AlgebraType.Pi));
+    }
 
 	public void OnExponentialClick(){
 		PushOperator (new Exponential ());
@@ -207,6 +214,79 @@ public class CalculatorInterface : MonoBehaviour {
 		PushOperator (new Factorial ());
 	}
 
-	#endregion
+    public void OnLogClick(string baseValue) {
+        switch (baseValue) {
+            case "10":
+                PushOperator(new Log10());
+                break;
+            case "2":
+                PushOperator(new Log2());
+                break;
+            case "e":
+                PushOperator(new LogE());
+                break;
+            default:
+                PushOperator(new Log());
+                break;
+        }
+    }
+
+    public void OnTrigonometricClick(string type) {
+        switch (type) {
+            case "sin":
+                PushOperator(new Sine());
+                break;
+            case "cos":
+                PushOperator(new Cosine());
+                break;
+            case "tan":
+                PushOperator(new Tangent());
+                break;
+        }
+    }
+
+    public void OnInverseTrigonometricClick(string type) {
+        switch (type) {
+            case "sin":
+                PushOperator(new Arcsine());
+                break;
+            case "cos":
+                PushOperator(new Arccosine());
+                break;
+            case "tan":
+                PushOperator(new Arctangent());
+                break;
+        }
+    }
+
+    public void OnHyperbolicClick(string type) {
+        switch (type) {
+            case "sin":
+                PushOperator(new Sinh());
+                break;
+            case "cos":
+                PushOperator(new Cosh());
+                break;
+            case "tan":
+                PushOperator(new Tanh());
+                break;
+        }
+    }
+
+    public void OnInverseHyperbolicClick(string type) {
+        switch (type) {
+            case "sin":
+                PushOperator(new Arsinh());
+                break;
+            case "cos":
+                PushOperator(new Arcosh());
+                break;
+            case "tan":
+                PushOperator(new Artanh());
+                break;
+        }
+    }
+
+    #endregion
 }
 

@@ -1,21 +1,64 @@
 ********************************************************************************
-*                       Saturday, 04 June 2016 17:51:01                        *
+*                       Sunday, June 05, 2016 4:23:02 PM                       *
 ********************************************************************************
 CSharpCompilerWrapper.exe version: 1.7.0.0
-Platform: Mac
-Target assembly: /Assembly-CSharp.dll
-Project directory: /Users/Loli/Downloads/WixCalculator
-Unity 'Data' or 'Frameworks' directory: /Applications/Unity/Unity.app/Contents/Frameworks
-Microsoft C# 6.0 compiler found, but it is not supported on the current platform. Looking for another compiler...
-Compiler: Mono C# 6.0
+Platform: Windows
+Target assembly: Assembly-CSharp.dll
+Project directory: I:\Github\WixCalculator
+Unity 'Data' or 'Frameworks' directory: I:/Unity5/Editor/Data
+Compiler: Microsoft C# 6.0
 
 - Compilation -----------------------------------------------
 
-Process: /Applications/Unity/Unity.app/Contents/Frameworks/MonoBleedingEdge/bin/mono
-Arguments: "/Users/Loli/Downloads/WixCalculator/CSharp60Support/mcs.exe" -sdk:2 -debug+ -langversion:Default @Temp/UnityTempFile-1dac97e5c1c3442488fbee2b5c3b98bb
+Process: I:\Github\WixCalculator\CSharp60Support\Roslyn\csc.exe
+Arguments: -nostdlib+ -noconfig -nologo -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/mscorlib.dll" -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/System.dll" -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/System.Core.dll" -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/System.Xml.dll" @Temp/UnityTempFile-a2640d2834187594cbdea2eabb83401f
 Exit code: 0
-Elapsed time: 1.35 sec
+Elapsed time: 0.46 sec
 
 - Compiler output (0 lines):
 
-- Compiler errors (0 lines):
+- Compiler errors (3 lines):
+0: Assets\Scripts\KeyPadFollower.cs(13,10): warning CS0649: Field 'KeyPadFollower.withCtrl' is never assigned to, and will always have its default value false
+1: Assets\Scripts\CalculatorInterface.cs(13,7): warning CS0649: Field 'CalculatorInterface.inputLine' is never assigned to, and will always have its default value null
+2: Assets\Scripts\KeyPadFollower.cs(11,10): warning CS0649: Field 'KeyPadFollower.inputKey' is never assigned to, and will always have its default value
+
+- PDB to MDB conversion --------------------------------------
+
+Process: I:\Github\WixCalculator\CSharp60Support\Roslyn\pdb2mdb.exe
+Arguments: Temp\Assembly-CSharp.dll
+Exit code: 0
+Elapsed time: 0.10 sec
+
+- pdb2mdb.exe output (0 lines):
+********************************************************************************
+*                       Sunday, June 05, 2016 4:25:18 PM                       *
+********************************************************************************
+CSharpCompilerWrapper.exe version: 1.7.0.0
+Platform: Windows
+Target assembly: Assembly-CSharp.dll
+Project directory: I:\Github\WixCalculator
+Unity 'Data' or 'Frameworks' directory: I:/Unity5/Editor/Data
+Compiler: Microsoft C# 6.0
+
+- Compilation -----------------------------------------------
+
+Process: I:\Github\WixCalculator\CSharp60Support\Roslyn\csc.exe
+Arguments: -nostdlib+ -noconfig -nologo -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/mscorlib.dll" -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/System.dll" -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/System.Core.dll" -r:"I:/Unity5/Editor/Data\Mono/lib/mono/2.0/System.Xml.dll" @Temp/UnityTempFile-7b1ae39b847ba7943b7b24bfa448195c
+Exit code: 0
+Elapsed time: 0.46 sec
+
+- Compiler output (0 lines):
+
+- Compiler errors (3 lines):
+0: Assets\Scripts\KeyPadFollower.cs(11,10): warning CS0649: Field 'KeyPadFollower.inputKey' is never assigned to, and will always have its default value
+1: Assets\Scripts\KeyPadFollower.cs(13,10): warning CS0649: Field 'KeyPadFollower.withCtrl' is never assigned to, and will always have its default value false
+2: Assets\Scripts\CalculatorInterface.cs(13,7): warning CS0649: Field 'CalculatorInterface.inputLine' is never assigned to, and will always have its default value null
+
+- PDB to MDB conversion --------------------------------------
+
+Process: I:\Github\WixCalculator\CSharp60Support\Roslyn\pdb2mdb.exe
+Arguments: Temp\Assembly-CSharp.dll
+Exit code: 0
+Elapsed time: 0.10 sec
+
+- pdb2mdb.exe output (0 lines):
