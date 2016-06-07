@@ -11,11 +11,13 @@ namespace Wix.Calculator{
 		public List<Element> equation { get; private set; }
 		public TimeSpan spendTime{ get { return timer.Elapsed; } }
 		public Element result { get; private set; }
+		public static bool isDeg;
 
 		public Calculator(){
 		}
 
-		public Calculator(List<Element> equation){
+		public Calculator(List<Element> equation, bool isDeg = false){
+			Calculator.isDeg = isDeg;
 			Execute (equation);
 		}
 
@@ -73,16 +75,13 @@ namespace Wix.Calculator{
 
         void AddNullElement(List<Element> elements) {
             for(int i = 0; i < elements.Count; i++) {
-                INonBinaryOperators e = elements[i] as INonBinaryOperators;
+				IFunction e = elements[i] as IFunction;
                 if (e == null) continue;
 
-                if (e.isLeftSideNull) {
-                    elements.Insert(i, new ValueElement());
-                    i++;
-                }
-                if (e.isRightSideNull) {
-                    elements.Insert(i + 1, new ValueElement());
-                }
+				if (!e.isDiargument) {
+					elements.Insert (i, new ValueElement ());
+					i++;
+				}
             }
         }
 
@@ -94,6 +93,7 @@ namespace Wix.Calculator{
 		public List<Element> InfixToPostfix(List<Element> elements){
 			List<Element> postfix = new List<Element> ();
 			Stack<Element> stack = new Stack<Element> ();
+			Stack<Element> diarg = new Stack<Element> ();
 
 			for (int i = 0; i < elements.Count; i++) {
 				Element e = elements [i];
@@ -102,6 +102,10 @@ namespace Wix.Calculator{
 					stack.Push (e);
 				} else if (e is Cparen) {
 					ProcessCparen (stack, postfix);
+				} else if (e is Comma) {
+					ProcessOperatorStack (diarg.Pop (), stack, postfix);
+				} else if (e is IFunction && ((IFunction)e).isDiargument) {
+					diarg.Push (e);
 				} else if (e is OperatorElement) {
 					ProcessOperatorStack (e, stack, postfix);
 				} else {
@@ -137,6 +141,7 @@ namespace Wix.Calculator{
 					postfix.Add (top);
 				}
 			}
+			Debug.LogError("括號未成對");
 			throw new Exception ("括號未成對");
 		}
 

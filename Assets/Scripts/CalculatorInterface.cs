@@ -11,11 +11,14 @@ public class CalculatorInterface : MonoBehaviour {
 
 	[SerializeField]
 	Text inputLine;
+	[SerializeField]
+	bool isDeg;
 
 	List<Element> elements = new List<Element> ();
 	Element result;
 
 	public CalculatorMode mode = CalculatorMode.Classis;
+	public bool AutoOparen = false;
 
     void Start() {
 		RefreshInputLine ();
@@ -29,41 +32,62 @@ public class CalculatorInterface : MonoBehaviour {
 		}
 	}
 
-    void PushValue(ValueElement e) {
-		if (result is Error) {
+	void PushElement(Element e){
+		if (result is Error)
 			return;
-		}
-			
-		if (elements.Count == 0) {
-			elements.Add (e);
-		} else {
-			Element last = elements.Last ();
-			if (last is ValueElement) {
-				((ValueElement)last).Link (e);
-			} else {
-				elements.Add (e);
-			}
-		}
-		RefreshInputLine();
-    }
 
-	void PushOperator(OperatorElement ope){
-		if (result is Error) {
-			return;
+		if (e is Algebra) {
+			PushAlgebra (e);
+		} else if (e is IFunction) {
+			PushFunction (e);
+		} else if (e is OperatorElement) {
+			PushOperator (e);
+		} else if (e is ValueElement) {
+			PushValue (e);
 		}
 
-		if (elements.Count == 0) {
-			if (result != null) {
-				elements.Add (result);
-			}
-		}
-		elements.Add (ope);
-
+		result = null;
 		RefreshInputLine ();
 	}
 
+    void PushValue(Element e) {
+		
+		if (elements.Count > 0 && elements.Last () is ValueElement) {
+			((ValueElement)elements.Last ()).Link ((ValueElement)e);
+		} else {
+			elements.Add (e);
+		}
+    }
+
+	void PushOperator(Element ope){
+		
+		if (result != null) {
+			elements.Add (result);
+		}
+
+		elements.Add (ope);
+	}
+
+	void PushAlgebra(Element e){
+
+		if (elements.Count > 0 && elements.Last () is ValueElement) {
+			elements.Add (new Multiply ());
+		}
+		elements.Add (e);
+	}
+
+	void PushFunction(Element e){
+
+		elements.Add (e);
+		if (AutoOparen)
+			elements.Add (new Oparen ());
+		if (result != null)
+			elements.Add (result);
+	}
+
 	void RefreshInputLine(Element element) {
-		inputLine.text = (element.ToString ().Length > 10) ? ((ValueElement)element).ToString ("E") : element.ToString ();
+		inputLine.text = (element.ToString ().Length > 10) ? ((ValueElement)element).ToString ("E7") : element.ToString ();
+		//inputLine.text = ((ValueElement)element).ToString("g");
 	}
 
 	void RefreshInputLine(List<Element> datas = null) {
@@ -81,7 +105,7 @@ public class CalculatorInterface : MonoBehaviour {
 		if (elements.Last () is ValueElement) {
 			((ValueElement)elements.Last ()).FinishEdit ();
 		}
-		Calculator c = new Calculator (elements);
+		Calculator c = new Calculator (elements, isDeg);
 		result = c.result;
 		elements.Clear ();
 		RefreshInputLine (result);
@@ -89,7 +113,7 @@ public class CalculatorInterface : MonoBehaviour {
 
     #region 基本按鍵區
     public void OnNumbicClick(int numbic){
-		PushValue (new ValueElement (numbic));
+		PushElement (new ValueElement (numbic));
 	}
 
 	public void OnDotClick(){
@@ -107,35 +131,40 @@ public class CalculatorInterface : MonoBehaviour {
 	}
 
 	public void OnSqrtClick(){
-		PushOperator (new Sqrt ());
+		PushElement (new Sqrt ());
 	}
 
 	public void OnSquareClick(){
-		PushOperator (new Square ());
+		PushElement (new Square ());
 	}
 
 	public void OnAddClick(){
-		PushOperator (new Add ());
+		PushElement (new Add ());
 	}
 
 	public void OnSubtractClick(){
-		PushOperator (new Subtract ());
+		PushElement (new Subtract ());
 	}
 
 	public void OnMultiplyClick(){
-		PushOperator (new Multiply ());
+		PushElement (new Multiply ());
 	}
 
 	public void OnDivideClick(){
-		PushOperator (new Divide ());
+		// 按著Ctrl的話就會用÷來顯示
+		if (Input.GetKey (KeyCode.LeftControl) || Input.GetKey (KeyCode.RightControl)) {
+			PushElement (new Divide2 ());
+		} else {
+			PushElement (new Divide ());
+		}
 	}
 		
 	public void OnOparenClick(){
-		PushOperator (new Oparen ());
+		PushElement (new Oparen ());
 	}
 
 	public void OnCparenClick(){
-		PushOperator (new Cparen ());
+		PushElement (new Cparen ());
 	}
 
 	public void OnEqualClick(){
@@ -175,58 +204,49 @@ public class CalculatorInterface : MonoBehaviour {
 
 	#region 進階函數按鍵
 
-	void PushAlgebra(Element e){
-		if (result is Error) {
-			return;
-		}
 
-		if (elements.Count == 0) {
-			elements.Add (e);
-		} else {
-			Element last = elements.Last ();
-			if (last is ValueElement) {
-				return;
-			} else {
-				elements.Add (e);
-			}
-		}
-		RefreshInputLine();
-	}
 
 	public void OnRandClick(){
-        print(UnityEngine.Random.value.ToString());
-        PushAlgebra(new ValueElement(UnityEngine.Random.value.ToString()));
+		PushElement(new ValueElement(UnityEngine.Random.value.ToString()));
 	}
 
 	public void OnEClick(){
-        PushAlgebra(new Algebra(AlgebraType.E));
+		PushElement(new Algebra(AlgebraType.E));
 	}
 
     public void OnPiClick() {
-        PushAlgebra(new Algebra(AlgebraType.Pi));
+		PushElement(new Algebra(AlgebraType.Pi));
     }
 
 	public void OnExponentialClick(){
-		PushOperator (new Exponential ());
+		PushElement (new Exponential ());
 	}
 
 	public void OnFactorialClick(){
-		PushOperator (new Factorial ());
+		PushElement (new Factorial ());
+	}
+
+	public void OnCommaClick(){
+		PushElement (new Comma ());
+	}
+
+	public void OnRootClick(){
+		PushElement (new Root ());
 	}
 
     public void OnLogClick(string baseValue) {
         switch (baseValue) {
             case "10":
-                PushOperator(new Log10());
+			PushElement(new Log10());
                 break;
             case "2":
-                PushOperator(new Log2());
+			PushElement(new Log2());
                 break;
             case "e":
-                PushOperator(new LogE());
+			PushElement(new LogE());
                 break;
             default:
-                PushOperator(new Log());
+			PushElement(new Log());
                 break;
         }
     }
@@ -234,13 +254,13 @@ public class CalculatorInterface : MonoBehaviour {
     public void OnTrigonometricClick(string type) {
         switch (type) {
             case "sin":
-                PushOperator(new Sine());
+			PushElement(new Sine());
                 break;
             case "cos":
-                PushOperator(new Cosine());
+			PushElement(new Cosine());
                 break;
             case "tan":
-                PushOperator(new Tangent());
+			PushElement(new Tangent());
                 break;
         }
     }
@@ -248,13 +268,13 @@ public class CalculatorInterface : MonoBehaviour {
     public void OnInverseTrigonometricClick(string type) {
         switch (type) {
             case "sin":
-                PushOperator(new Arcsine());
+			PushElement(new Arcsine());
                 break;
             case "cos":
-                PushOperator(new Arccosine());
+			PushElement(new Arccosine());
                 break;
             case "tan":
-                PushOperator(new Arctangent());
+			PushElement(new Arctangent());
                 break;
         }
     }
@@ -262,13 +282,13 @@ public class CalculatorInterface : MonoBehaviour {
     public void OnHyperbolicClick(string type) {
         switch (type) {
             case "sin":
-                PushOperator(new Sinh());
+			PushElement(new Sinh());
                 break;
             case "cos":
-                PushOperator(new Cosh());
+			PushElement(new Cosh());
                 break;
             case "tan":
-                PushOperator(new Tanh());
+			PushElement(new Tanh());
                 break;
         }
     }
@@ -276,16 +296,20 @@ public class CalculatorInterface : MonoBehaviour {
     public void OnInverseHyperbolicClick(string type) {
         switch (type) {
             case "sin":
-                PushOperator(new Arsinh());
+			PushElement(new Arsinh());
                 break;
             case "cos":
-                PushOperator(new Arcosh());
+			PushElement(new Arcosh());
                 break;
             case "tan":
-                PushOperator(new Artanh());
+			PushElement(new Artanh());
                 break;
         }
     }
+
+	public void OnRNDClick(){
+		isDeg = !isDeg;
+	}
 
     #endregion
 }

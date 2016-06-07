@@ -110,14 +110,9 @@ namespace Wix.Calculator{
         }
     }
 
-    public interface IAlgebra {
-
-    }
-
-    public interface INonBinaryOperators {
-        bool isLeftSideNull { get; }
-        bool isRightSideNull { get; }
-    }
+	public interface IFunction{
+		bool isDiargument{ get; }
+	}
 
     // 加
     public class Add : OperatorElement {
@@ -183,6 +178,23 @@ namespace Wix.Calculator{
 		}
 
 		public override string ToString() {
+			return "/";
+		}
+	}
+
+	// 除
+	public class Divide2 : OperatorElement {
+
+		public Divide2() {
+			weight = 3;
+			argCount = 2;
+		}
+
+		public override ValueElement Calculate(ValueElement right, ValueElement left) {
+			return new ValueElement(left.value / right.value);
+		}
+
+		public override string ToString() {
 			return "÷";
 		}
 	}
@@ -205,10 +217,9 @@ namespace Wix.Calculator{
 	}
 
 	// 平方
-	public class Square : OperatorElement, INonBinaryOperators{
+	public class Square : OperatorElement, IFunction{
 
-        public bool isLeftSideNull { get; } = false;
-        public bool isRightSideNull { get; } = true;
+		public bool isDiargument { get; } = false;
 
         public Square(){
 			weight = 2;
@@ -225,14 +236,14 @@ namespace Wix.Calculator{
 
 		public override string ToString ()
 		{
-			return string.Format ("²");
+			return string.Format ("x²");
 		}
 	}
 
 	// 開方
-	public class Sqrt : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Sqrt : OperatorElement, IFunction{
+
+		public bool isDiargument { get; } = false;
 
         public Sqrt(){
 			weight = 2;
@@ -251,7 +262,7 @@ namespace Wix.Calculator{
 
 		public override string ToString ()
 		{
-			return "√ ";
+			return "√x";
 		}
 	}
 
@@ -287,6 +298,23 @@ namespace Wix.Calculator{
 		}
 	}
 
+	public class Comma : OperatorElement{
+
+		public Comma(){
+			weight = int.MaxValue;
+		}
+
+		public override ValueElement Calculate (ValueElement right, ValueElement left)
+		{
+			throw new NotImplementedException ();
+		}
+			
+		public override string ToString ()
+		{
+			return ", ";
+		}
+	}
+
 	public class Error : Element{
 		public override string ToString ()
 		{
@@ -296,6 +324,7 @@ namespace Wix.Calculator{
 
 	#region 進階函數
 
+	// 代數
     public class Algebra : ValueElement {
 
         public Algebra(AlgebraType type) {
@@ -335,14 +364,14 @@ namespace Wix.Calculator{
 
     }
 
+	// 代數類型
     public enum AlgebraType {
         E,
         Pi
     }
 
-	public class Factorial : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = false;
-        public bool isRightSideNull { get; } = true;
+	public class Factorial : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Factorial(){
 			argCount = 1;
@@ -350,13 +379,13 @@ namespace Wix.Calculator{
 		}
 
         public override ValueElement Calculate(ValueElement right, ValueElement left) {
-            if (!string.IsNullOrEmpty(right.ToString())) {
+			if (!string.IsNullOrEmpty(left.ToString())) {
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
 
             decimal factor = 1m;
-			for (int i = 1; i <= left.value; i++) {
+			for (int i = 1; i <= right.value; i++) {
 				factor *= i;
 			}
 			return new ValueElement (factor);
@@ -364,13 +393,35 @@ namespace Wix.Calculator{
 
 		public override string ToString ()
 		{
-			return "!";
+			return "x!";
 		}
 	}
 
-	public class LogE : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	// 根號
+	public class Root : OperatorElement, IFunction{
+
+		public bool isDiargument { get; } = true;
+
+		public Root(){
+			weight = 5;
+			argCount = 2;
+		}
+
+		public override ValueElement Calculate(ValueElement right, ValueElement left) {
+			
+			decimal result = (decimal) Math.Pow ((double)right.value, 1d / (double)left.value);
+				
+			return new ValueElement (result);
+		}
+
+		public override string ToString ()
+		{
+			return "y√x";
+		}
+	}
+
+	public class LogE : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public LogE(){
 			argCount = 1;
@@ -392,10 +443,12 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Log : OperatorElement{
+	public class Log : OperatorElement, IFunction{
+		public bool isDiargument { get; } = true;
+
 		public Log(){
 			argCount = 2;
-			weight = 1;
+			weight = 5;
 		}
 
 		public override ValueElement Calculate(ValueElement right, ValueElement left) {
@@ -408,9 +461,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Log10 : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Log10 : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Log10(){
 			argCount = 1;
@@ -432,9 +484,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Log2 : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Log2 : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Log2(){
 			argCount = 1;
@@ -456,9 +507,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Sine : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Sine : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Sine(){
 			argCount = 1;
@@ -470,8 +520,11 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
-            return new ValueElement (Math.Sin((double)right.value));
+			return new ValueElement (Math.Sin(value));
 		}
 
 		public override string ToString ()
@@ -480,9 +533,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Arcsine : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Arcsine : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Arcsine(){
 			argCount = 1;
@@ -494,6 +546,9 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
             return new ValueElement (Math.Asin ((double)right.value));
 		}
@@ -504,9 +559,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Sinh : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Sinh : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Sinh(){
 			argCount = 1;
@@ -518,6 +572,9 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
             return new ValueElement (Math.Sinh ((double)right.value));
 		}
@@ -528,9 +585,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Cosine : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Cosine : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Cosine(){
 			argCount = 1;
@@ -542,6 +598,9 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
             return new ValueElement (Math.Cos((double)right.value));
 		}
@@ -552,9 +611,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Arccosine : OperatorElement, INonBinaryOperators {
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Arccosine : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Arccosine(){
 			argCount = 1;
@@ -566,6 +624,9 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
             return new ValueElement (Math.Acos ((double)right.value));
 		}
@@ -576,9 +637,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Cosh : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Cosh : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Cosh(){
 			argCount = 1;
@@ -590,6 +650,9 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
             return new ValueElement (Math.Cosh ((double)right.value));
 		}
@@ -600,9 +663,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Tangent : OperatorElement, INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Tangent : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Tangent(){
 			argCount = 1;
@@ -614,6 +676,9 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
             return new ValueElement (Math.Tan((double)left.value));
 		}
@@ -624,9 +689,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Arctangent : OperatorElement,INonBinaryOperators{
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Arctangent : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Arctangent(){
 			argCount = 1;
@@ -638,6 +702,9 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
 
             return new ValueElement (Math.Atan ((double)right.value));
 		}
@@ -648,9 +715,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-	public class Tanh : OperatorElement, INonBinaryOperators {
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Tanh : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Tanh(){
 			argCount = 1;
@@ -662,6 +728,10 @@ namespace Wix.Calculator{
                 Debug.LogWarning($"{GetType().ToString()} Calculate Error");
                 throw new Exception();
             }
+			double value = (double)right.value;
+			if (Calculator.isDeg)
+				value *= Mathf.Rad2Deg;
+
             return new ValueElement (Math.Tanh ((double)right.value));
 		}
 
@@ -671,9 +741,8 @@ namespace Wix.Calculator{
 		}
 	}
 
-    public class Arsinh : OperatorElement, INonBinaryOperators {
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Arsinh : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Arsinh() {
             weight = 1;
@@ -686,6 +755,9 @@ namespace Wix.Calculator{
                 throw new Exception();
             }
             double x = (double)right.value;
+			if (Calculator.isDeg)
+				x *= Mathf.Rad2Deg;
+
             double result = Math.Log(x + Math.Sqrt(Math.Pow(x, 2d) + 1d));
             return new ValueElement(result);
         }
@@ -695,9 +767,8 @@ namespace Wix.Calculator{
         }
     }
 
-    public class Arcosh : OperatorElement, INonBinaryOperators {
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Arcosh : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Arcosh() {
             weight = 1;
@@ -711,6 +782,9 @@ namespace Wix.Calculator{
             }
 
             double x = (double)right.value;
+			if (Calculator.isDeg)
+				x *= Mathf.Rad2Deg;
+			
             double result = Math.Log(x + Math.Sqrt(Math.Pow(x, 2d) - 1d));
             return new ValueElement(result);
         }
@@ -720,9 +794,8 @@ namespace Wix.Calculator{
         }
     }
 
-    public class Artanh : OperatorElement, INonBinaryOperators {
-        public bool isLeftSideNull { get; } = true;
-        public bool isRightSideNull { get; } = false;
+	public class Artanh : OperatorElement, IFunction{
+		public bool isDiargument { get; } = false;
 
         public Artanh() {
             weight = 1;
@@ -735,6 +808,9 @@ namespace Wix.Calculator{
                 throw new Exception();
             }
             double x = (double)right.value;
+			if (Calculator.isDeg)
+				x *= Mathf.Rad2Deg;
+			
             double result = 0.5d * Math.Log((1 + x) / (1 - x));
             return new ValueElement(result);
         }
